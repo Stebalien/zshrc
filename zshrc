@@ -19,6 +19,9 @@ ZSH_HIGHLIGHT_STYLES[command]="fg=cyan,bold"
 ZSH_HIGHLIGHT_STYLES[function]="fg=cyan,bold"
 
 # {{{ Completion
+# Custom completions
+fpath=("$XDG_CONFIG_HOME/zsh/completions" $fpath)
+
 zstyle ':completion:*' completer _expand _complete _ignored _approximate
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' ignore-parents parent pwd
