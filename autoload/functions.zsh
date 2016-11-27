@@ -1,3 +1,4 @@
+# Shortcuts for clipboard content
 alias -g @C='$(xclip -o -selection CLIPBOARD)'
 alias -g @S='$(xclip -o)'
 
