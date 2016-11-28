@@ -27,24 +27,24 @@ zle-keymap-select() {
 zle-line-finish() {
     mode_color="$ZSH_PROMPT_MODE_RO"
     RPROMPT=""
-    unset LINE_INITED
+    unset _prompt_line_inited
 
     zle reset-prompt
 }
 
 zle-line-init() {
-    if [[ "$LINE_INITED" ]]; then
+    if [[ "$_prompt_line_inited" ]]; then
         tput rc
     fi
 
     mode_info
 
     zle reset-prompt
-    LINE_INITED=1
+    _prompt_line_inited=1
 }
 
 function TRAPINT {
-    if [[ "$LINE_INITED" ]]; then
+    if [[ "$_prompt_line_inited" ]]; then
         # Do this up-down dance to prevent problems on the last line...
         tput cud1
         tput cuu1
@@ -53,8 +53,18 @@ function TRAPINT {
     return $(( 128 + $1 ))
 }
 
+preexec() {
+    _prompt_command_has_run=1
+}
+
 precmd() {
     local saved_result=$?
+    if [[ ! "$_prompt_command_has_run" ]]; then
+        # Only show errors for actual commands
+        saved_result=0
+    fi
+    unset _prompt_command_has_run
+
     # Reset term.
     tput -S <<EOF
 sgr0
@@ -80,7 +90,7 @@ EOF
 
     print -rP "$ZSH_PROMPT_PRE"
     RPROMPT="$ZSH_PROMPT_JOBS"
-    return $saved_result
+    return 0
 }
 
 zle -N zle-keymap-select
