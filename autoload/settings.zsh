@@ -9,3 +9,5 @@ setopt \
     histignorealldups \
     histignorespace \
     nobeep
+
+CORRECT_IGNORE="_*"
