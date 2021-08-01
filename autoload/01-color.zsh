@@ -14,6 +14,14 @@ if [[ "$terminfo[colors]" -ge 8 ]]; then
             command diff $@
         fi
     }
+
+    function ip() {
+        if [[ -t 1 ]]; then
+            command ip -c $@
+        else
+            command ip $@
+        fi
+    }
     # Less
     export LESS_TERMCAP_mb=$'\E[01;31m'
     export LESS_TERMCAP_md=$'\E[01;38;5;74m'
@@ -25,9 +33,10 @@ if [[ "$terminfo[colors]" -ge 8 ]]; then
 
     export LS_COLORS="$LS_COLORS:di=36:*.swp=37:*.pyo=37:*.pyc=37:*.java=32:*.py=32:*.lua=32:*.c=32:*.html=32:*.css=32:*.js=32:*.rst=32"
     zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+    command_not_found_handler() {
+        print "\e[1;31mcommand not found:\e[0m $@"
+        return 0
+    }
 fi
 
-command_not_found_handler() {
-    print "\e[1;31mcommand not found:\e[0m $@"
-    return 0
-}

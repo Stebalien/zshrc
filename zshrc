@@ -1,5 +1,6 @@
 #!/bin/zsh
 stty stop undef -echo # Get rid of annoying C-S and turn off echo while loading
+printf '\e]11;%s\a' "$COLOR_BACKGROUND" # color terminal background
 
 # source plugins
 function {
@@ -55,14 +56,14 @@ compdef -d adb # Broken
 
 # {{{ History
 HISTFILE="$XDG_DATA_HOME/shell/history"
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=1000000
+SAVEHIST=1000000
 # }}}
 
 # {{{ Remove sudo tty ticket on exit
 zshexit() {
     cd /
-    sudo -k
+    sudo -k >/dev/null 2>&1
 }
 # }}}
 
@@ -70,7 +71,7 @@ zshexit() {
 function {
     local file=
     # Source anything for zsh (color functions etc)
-    for file in $XDG_CONFIG_HOME/zsh/autoload/*.zsh; do
+    for file in $XDG_CONFIG_HOME/zsh/autoload/*.zsh(n); do
         . $file
     done
 }

@@ -8,6 +8,8 @@ setopt \
     incappendhistory \
     histignorealldups \
     histignorespace \
-    nobeep
+    nobeep \
+    nobgnice \
+    nocdablevars
 
 CORRECT_IGNORE="_*"

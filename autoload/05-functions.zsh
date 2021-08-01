@@ -8,7 +8,7 @@ alias -g @S='$(xclip -o)'
 #alias la='ls -A'
 #alias l='ls -CF'
 alias exa='exa --group-directories-first'
-alias ls='exa'
+alias ls='exa -F'
 alias ll='ls -lg'
 alias la='ls -a'
 
@@ -17,15 +17,12 @@ alias grep='grep --color=auto --binary-files=without-match --directories=skip'
 
 # ipython: awesome python interpreter
 python() {
-    if [ $# -eq 0 ]; then
+    if [[ $# -eq 0 ]]; then
         ipython
     else
         command python $@
     fi
 }
-
-# Update Pacman
-alias uu='pkg u'
 
 # tools
 alias lsgroup='cat /etc/group'
@@ -42,16 +39,13 @@ alias www='python -m http.server --bind 127.0.0.1 8888'
 
 alias journalctl='SYSTEMD_PAGER="less -F" journalctl'
 
+alias units="units --history '${XDG_DATA_HOME}/units_history'"
+alias iftop="iftop -c ${XDG_CONFIG_HOME}/iftoprc"
 alias c='units -1t'
-alias emacs='emacs -n'
+alias emacs='emacsclient -n'
 
-p() {
-    local PIDS
-    if [ $# -gt 0 ]; then
-        PIDS=($(pgrep -f "$@")) || return
-        ps --forest -o user,pid,stime,cmd ${PIDS}
-    else
-        ps --forest -eo user,pid,stime,cmd
-    fi
+alias ssh='TERM=xterm-256color ssh'
+
+function weather() {
+    curl "http://wttr.in/~${*// /+}?u"
 }
-
