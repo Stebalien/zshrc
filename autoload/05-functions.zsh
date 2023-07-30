@@ -3,14 +3,9 @@ alias -g @C='$(xclip -o -selection CLIPBOARD)'
 alias -g @S='$(xclip -o)'
 
 # ls
-#alias ls='ls -hF --color=auto --group-directories-first'
-#alias ll='ls -l'
-#alias la='ls -A'
-#alias l='ls -CF'
-alias exa='exa --group-directories-first'
-alias ls='exa -F'
-alias ll='ls -lg'
-alias la='ls -a'
+alias ls='ls -hF --color=auto --group-directories-first'
+alias ll='ls -l'
+alias la='ls -A'
 
 # Grep
 alias grep='grep --color=auto --binary-files=without-match --directories=skip'

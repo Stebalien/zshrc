@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+autoload -Uz add-zsh-hook
+
 quote_emacs() {
     echo "\"${1//\"/\\\"}\""
 }
@@ -21,12 +23,23 @@ elif [[ "$INSIDE_EMACS" == "vterm" ]]; then
             printf "\e]%s\e\\" "$1"
         fi
     }
-    alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
+    alias clear='vterm_printf "51;Evterm-clear-scrollback";echoti clear'
     vterm_prompt_end() {
         vterm_printf "51;A$(print -nP '%n@%m:%~')";
     }
     setopt PROMPT_SUBST
     PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+
+    _vterm_preexec() {
+        vterm_printf "51;Eevil-emacs-state"
+    }
+    add-zsh-hook preexec _vterm_preexec
+
+    _vterm_precmd() {
+        vterm_printf "51;Eevil-insert-state"
+    }
+
+    add-zsh-hook precmd _vterm_precmd
 fi
 
 if [[ -n "$INSIDE_EMACS" ]]; then
@@ -48,4 +61,9 @@ if [[ -n "$INSIDE_EMACS" ]]; then
             command cal "$@"
         fi
     }
+fi
+
+
+if [[ -n "$EAT_SHELL_INTEGRATION_DIR" ]]; then
+    source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 fi

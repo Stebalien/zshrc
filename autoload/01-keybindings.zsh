@@ -1,4 +1,6 @@
-if ! [[ "$INSIDE_EMACS" =~ "comint" ]]; then
+#!/bin/zsh
+
+if ! [[ "$INSIDE_EMACS" =~ (comint|vterm) ]]; then
     bindkey -v
     bindkey "\e[A" history-beginning-search-backward
     bindkey "\e[B" history-beginning-search-forward
@@ -20,3 +22,7 @@ if ! [[ "$INSIDE_EMACS" =~ "comint" ]]; then
 
     export KEYTIMEOUT=1
 fi
+
+# Bind delete...
+bindkey '\e[3~' delete-char
+bindkey -a '\e[3~' delete-char

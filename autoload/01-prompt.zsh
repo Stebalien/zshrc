@@ -23,7 +23,7 @@ case "$TERM" in
             #print -n '[?16;5;96;c'
         }
         ;;
-    xterm-*|alacritty)
+    xterm-*|alacritty|termite)
         _zsh_prompt_cursor_insert() {
             print -n '[6 q]12;#813e00\a'
         }
@@ -65,7 +65,7 @@ zle-line-finish() {
 
 zle-line-init() {
     if [[ "$_zsh_prompt_line_inited" ]]; then
-        tput rc
+        echoti rc
     fi
 
     _zsh_prompt_cursor_insert
@@ -79,22 +79,22 @@ zle-line-init() {
 function TRAPINT {
     if [[ "$_zsh_prompt_line_inited" ]]; then
         # Do this up-down dance to prevent problems on the last line...
-        tput -S <<EOF
-cud1
-cuu1
-sc
-EOF
+        echoti cud1
+        echoti cuu1
+        echoti sc
     fi
     return $(( 128 + $1 ))
 }
 
 preexec() {
     _zsh_prompt_command_has_run=1
+    # Save the STTY before running anything so we can restore it.
+    _zsh_saved_stty="$(stty -g)"
     # DO NOT CHANGE TO DOUBLE QUOTES. THAT WILL INTRODUCE A SECURITY VULNERABILITY !!!!!!
-    if tput tsl; then
+    if echoti tsl; then
        print -nP '%~: '
        printf "$1"
-       tput fsl
+       echoti fsl
     fi
     _zsh_prompt_cursor_normal
 }
@@ -108,16 +108,19 @@ precmd() {
     unset _zsh_prompt_command_has_run
 
     # Reset term.
-    tput -S <<EOF
-sgr0
-rmacs
-EOF
-    stty sane
+    echoti sgr0
+    echoti rmacs
+
+    # Restore the last saved STTY setting after running a command.
+    if [[ -n "$_zsh_saved_stty" ]]; then
+        stty "$_zsh_saved_stty"
+        unset _zsh_saved_stty
+    fi
 
     # Update title
-    if tput tsl; then
+    if echoti tsl; then
        print -nP "%~: _"
-       tput fsl
+       echoti fsl
     fi
 
     # Update vcs stuff
@@ -147,26 +150,23 @@ zle -N zle-keymap-select
 zle -N zle-line-finish
 zle -N zle-line-init
 
-case "${TTY}" in
-    /dev/tty[0-9]*)
-        ZSH_PROMPT_LBRACE="["
-        ZSH_PROMPT_RBRACE="]"
-        ZSH_PROMPT_LAMBDA=">"
-        ;;
-    *)
-        ZSH_PROMPT_LBRACE="["
-        ZSH_PROMPT_RBRACE="]"
-        ZSH_PROMPT_LAMBDA="𝝺"
-        ;;
-esac
+ZSH_PROMPT_LBRACE="["
+ZSH_PROMPT_RBRACE="]"
+if [[ "${TTY}" = /dev/tty[0-9]* ]]; then
+        ZSH_PROMPT_LAMBDA=">:"
+        ZSH_PROMPT_CONTINUE=".."
+else
+        ZSH_PROMPT_LAMBDA="᚛:"
+        ZSH_PROMPT_CONTINUE="… "
+fi
 
-ZSH_PROMPT_STATUS="%(0?..$fg_bold[red]⚠ %(1?..$fg_bold[black]%?)$reset_color
+ZSH_PROMPT_STATUS="%(0?..%F{red,bold}⚠ %(1?..%F{8}%?)%f
 )"
-ZSH_PROMPT_PRE="$fg_bold[black]$ZSH_PROMPT_LBRACE$reset_color$fg[blue]%~$fg_bold[black]$ZSH_PROMPT_RBRACE\${vcs_info_msg_0_}"
-ZSH_PROMPT_JOBS="%{$fg[green]%}%(1j: %j:)%{$reset_color%}"
-ZSH_PROMPT_MODE_NORMAL="%{$fg[yellow]%}"
-ZSH_PROMPT_MODE_INSERT="%{$fg[green]%}"
-ZSH_PROMPT_MODE_RO="%{$fg_bold[magenta]%}"
+ZSH_PROMPT_PRE="%F{8}$ZSH_PROMPT_LBRACE%F{blue}%~%F{8}$ZSH_PROMPT_RBRACE\${vcs_info_msg_0_}"
+ZSH_PROMPT_JOBS="%F{green}%(1j: %j:)%f"
+ZSH_PROMPT_MODE_NORMAL="%F{yellow,bold}"
+ZSH_PROMPT_MODE_INSERT="%F{green,bold}"
+ZSH_PROMPT_MODE_RO="%F{magenta,bold}"
 
-PROMPT="\${_zsh_prompt_mode_color}$ZSH_PROMPT_LAMBDA: %{$reset_color%}"
-PROMPT2="\${_zsh_prompt_mode_color}$ZSH_PROMPT_LAMBDA. %{$reset_color%}"
+PROMPT="\${_zsh_prompt_mode_color}$ZSH_PROMPT_LAMBDA %f"
+PROMPT2="\${_zsh_prompt_mode_color}$ZSH_PROMPT_CONTINUE %f"

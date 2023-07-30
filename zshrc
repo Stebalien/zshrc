@@ -1,6 +1,5 @@
 #!/bin/zsh
 stty stop undef -echo # Get rid of annoying C-S and turn off echo while loading
-printf '\e]11;%s\a' "$COLOR_BACKGROUND" # color terminal background
 
 # source plugins
 function {
